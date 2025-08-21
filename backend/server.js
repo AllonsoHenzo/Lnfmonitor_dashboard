@@ -9,5 +9,5 @@ app.use(cors());
 app.use("/api", statsRoute);
 
 app.listen(PORT, () => {
-  console.log(`✅ SysDash backend rodando em http://localhost:${PORT}`);
+  console.log(`LnfDash backend rodando em http://localhost:${PORT}`);
 });
