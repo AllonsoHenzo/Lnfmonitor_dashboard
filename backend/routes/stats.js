@@ -3,64 +3,61 @@ const si = require("systeminformation");
 
 const router = express.Router();
 
+let lastNet = null;
+let lastNetTs = 0;
+
 router.get("/stats", async (req, res) => {
   try {
-    const cpu = await si.currentLoad();
-    const mem = await si.mem(); 
-    const disk = await si.fsSize();
-    const net = await si.networkStats();
+    const [cpuLoad, mem, fs, iface] = await Promise.all([
+      si.currentLoad(),
+      si.mem(),
+      si.fsSize(),
+      si.networkInterfaceDefault(),
+    ]);
+    const netArr = await si.networkStats(iface);
+
+    const net0 = netArr?.[0] || {};
     const totalBytes = mem.total;
-    const usedBytes  = mem.active || mem.used;
+    const usedBytes =
+      mem.active && mem.active > 0
+        ? mem.active
+        : mem.used && mem.used > 0
+        ? mem.used
+        : mem.total - (mem.available ?? mem.free ?? 0);
+
+    let rxBps = Number(net0.rx_sec) || 0;
+    let txBps = Number(net0.tx_sec) || 0;
+
+    if (!rxBps && !txBps && lastNet) {
+      const now = Date.now();
+      const dt = Math.max(0.5, (now - lastNetTs) / 1000);
+      rxBps = Math.max(0, (net0.rx_bytes - lastNet.rx_bytes) / dt);
+      txBps = Math.max(0, (net0.tx_bytes - lastNet.tx_bytes) / dt);
+      lastNetTs = now;
+      lastNet = net0;
+    } else {
+      lastNetTs = Date.now();
+      lastNet = net0;
+    }
 
     res.json({
-      cpu: Number(cpu.currentLoad.toFixed(2)),  
+      cpu: Number(cpuLoad.currentLoad.toFixed(2)),
       ram: Number(((usedBytes / totalBytes) * 100).toFixed(2)),
       ramBytes: { used: usedBytes, total: totalBytes },
-      disk: disk?.[0]?.use ?? 0,                              
-      net: { rx: net?.[0]?.rx_bytes ?? 0, tx: net?.[0]?.tx_bytes ?? 0 }
+      disk: fs?.[0]?.use ?? 0,
+      net: {
+        rx_mbps: rxBps / 1024 ** 2,
+        tx_mbps: txBps / 1024 ** 2,
+        rx_bps: rxBps,
+        tx_bps: txBps,
+        rx_bytes: net0.rx_bytes ?? 0,
+        tx_bytes: net0.tx_bytes ?? 0,
+        iface: net0.iface || iface,
+      },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
-
-// TOP processes (by cpu|mem). Ex.: /api/processes/top?by=cpu&limit=10
-router.get("/processes/top", async (req, res) => {
-  try {
-    const by = (req.query.by || "cpu").toLowerCase();   // "cpu" | "mem"
-    const limit = Math.min(parseInt(req.query.limit || "10", 10), 50);
-
-    const [procs, mem] = await Promise.all([si.processes(), si.mem()]);
-    const totalMem = mem.total || 0;
-
-    const rows = (procs.list || []).map(p => {
-      // cpu (%) e mem (%). Alguns SOs trazem memRss em bytes; se não, aproxima por %
-      const cpu = Number((p.cpu || 0).toFixed(1));
-      const memPct = Number((p.mem || 0).toFixed(1));
-      const rssBytes = p.memRss || p.mem_rss || Math.round((memPct / 100) * totalMem);
-      return {
-        pid: p.pid,
-        name: p.name || p.command || "—",
-        cpu,
-        memPct,
-        memBytes: rssBytes
-      };
-    });
-
-    rows.sort((a, b) => {
-      if (by === "mem") return (b.memBytes || 0) - (a.memBytes || 0);
-      return (b.cpu || 0) - (a.cpu || 0);
-    });
-
-    res.json({
-      total: procs.all,
-      running: procs.running,
-      list: rows.slice(0, limit)
-    });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
 
 module.exports = router;
