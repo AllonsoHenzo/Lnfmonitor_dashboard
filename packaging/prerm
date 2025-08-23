@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+systemctl stop lnfmon-backend || true
+exit 0

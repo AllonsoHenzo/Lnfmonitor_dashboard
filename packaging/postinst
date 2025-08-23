@@ -1,0 +1,28 @@
+#!/bin/sh
+set -e
+
+# cria usuário
+id -u lnfmon >/dev/null 2>&1 || useradd -r -s /usr/sbin/nologin -d /opt/lnfmonitor lnfmon
+
+# permissões
+chown -R lnfmon:lnfmon /opt/lnfmonitor || true
+
+# arquivo de env
+[ -f /etc/lnfmonitor/.env ] || cat >/etc/lnfmonitor/.env <<'EOT'
+NODE_ENV=production
+PORT=8080
+EOT
+chmod 640 /etc/lnfmonitor/.env
+
+# habilita site no nginx, testa e recarrega
+if command -v nginx >/dev/null 2>&1; then
+  ln -sf /etc/nginx/sites-available/lnfmonitor.conf /etc/nginx/sites-enabled/lnfmonitor.conf || true
+  nginx -t && systemctl reload nginx || true
+fi
+
+# ativa e inicia o backend
+systemctl daemon-reload
+systemctl enable lnfmon-backend
+systemctl restart lnfmon-backend || true
+
+exit 0

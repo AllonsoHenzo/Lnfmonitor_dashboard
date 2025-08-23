@@ -7,7 +7,7 @@ function Ring({
   warn = 70,
   crit = 85,
   unit = "°C",
-  emptyLabel = "null",
+  emptyLabel = "-",
 }) {
   const v = Number.isFinite(value) ? value : null;
   const pct = Math.max(0, Math.min(100, v ?? 0));
@@ -50,12 +50,23 @@ function Ring({
 
 export default function TemperaturePanel() {
   const { cpu, cpuMax, gpu, fanRpm, fanPercent, loading } = useTemps();
+  const hasGpu = Number.isFinite(gpu);
 
   return (
     <div className="grid gap-4">
+      
       <div className="grid grid-cols-2 gap-6">
         <Ring value={cpu} label="CPU Temp" />
-        <Ring value={gpu} label="GPU Temp" />
+        {hasGpu ? (
+          <Ring value={gpu} label="GPU Temp" />
+        ) : (
+          <div className="grid place-items-center gap-2">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-[#0f1722]">
+              <span className="text-slate-400 text-sm">—</span>
+            </div>
+            <div className="text-sm text-slate-300">GPU não detectada</div>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 space-y-6">

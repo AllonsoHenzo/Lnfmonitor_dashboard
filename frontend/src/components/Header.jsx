@@ -367,7 +367,7 @@ export default function Header() {
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-fuchsia-500 rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-300" />
             <div className="relative h-10 w-10 rounded-xl backdrop-blur-sm border border-white/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 overflow-hidden">
               <img
-                src="public/images/lnf_pulse_glyph_128.png"
+                src="/images/lnf_pulse_glyph_128.png"
                 alt="LnfMonitor Logo"
                 className="h-8 w-8 object-contain"
               />

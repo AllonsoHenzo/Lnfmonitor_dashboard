@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -e
+case "$1" in
+  start)   sudo systemctl start lnfmon-backend && sudo systemctl reload nginx ;;
+  stop)    sudo systemctl stop lnfmon-backend ;;
+  restart) sudo systemctl restart lnfmon-backend && sudo systemctl reload nginx ;;
+  status)  systemctl status lnfmon-backend --no-pager ;;
+  logs)    journalctl -u lnfmon-backend -n 200 -f ;;
+  *) echo "uso: lnfmonitorctl {start|stop|restart|status|logs}"; exit 1 ;;
+esac

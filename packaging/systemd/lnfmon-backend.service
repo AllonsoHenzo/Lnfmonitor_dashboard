@@ -1,0 +1,17 @@
+[Unit]
+Description=LnfMonitor Backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=lnfmon
+Group=lnfmon
+WorkingDirectory=/opt/lnfmonitor/backend
+EnvironmentFile=/etc/lnfmonitor/.env
+Environment=LANG=C
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

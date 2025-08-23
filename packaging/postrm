@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+systemctl disable lnfmon-backend || true
+systemctl daemon-reload
+exit 0

@@ -1,35 +1,30 @@
-const express = require("express");
-const si = require("systeminformation");
-const router = express.Router();
+const { Router } = require("express");
+const { execFile } = require("child_process");
+const router = Router();
 
-let cache = { at: 0, payload: null };
-const TTL_MS = 2000; // 2s
+router.get("/processes", (_req, res) => {
+  const env = { ...process.env, LANG: "C", LC_ALL: "C" };
+  execFile(
+    "/usr/bin/ps",
+    ["-eo", "pid,comm,pcpu,pmem,rss,user", "--no-headers", "--sort=-pcpu"],
+    { env },
+    (err, stdout) => {
+      if (err) return res.json({ updatedAt: Date.now(), rows: [] });
 
-router.get("/processes", async (_req, res) => {
-  try {
-    const now = Date.now();
-    if (cache.payload && now - cache.at < TTL_MS) {
-      return res.json(cache.payload);
+      const rows = stdout
+        .trim().split("\n").slice(0, 15)
+        .map((line) => {
+          const p = line.trim().split(/\s+/);
+          if (p.length < 6) return null;
+          const [pid, comm, pcpu, _pmem, rssKB, user] = p;
+          const ramMB = Math.round((Number(rssKB) / 1024) * 100) / 100;
+          return { pid: +pid, name: comm, cpu: +pcpu, ramMB, user };
+        })
+        .filter(Boolean)
+        .filter(pr => !(pr.name === 'ps' || (pr.name === 'node' && pr.user === 'lnfmon')));
+
+      res.json({ updatedAt: Date.now(), rows });
     }
-
-    const procs = await si.processes();
-    const rows = procs.list
-      .map((p) => ({
-        pid: p.pid,
-        name: p.name || p.command || "unknown",
-        user: p.user || "",
-        cpu: Number(p.cpu || 0),
-        ramMB: Number(p.memRss || 0) / 1024 / 1024,
-      }))
-      .sort((a, b) => b.cpu - a.cpu || b.ramMB - a.ramMB)
-      .slice(0, 10);
-
-    const payload = { updatedAt: now, rows };
-    cache = { at: now, payload };
-    res.json(payload);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  );
 });
-
 module.exports = router;
