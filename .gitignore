@@ -50,14 +50,9 @@ out/
 .docusaurus/
 .fusebox/
 
-### Lockfiles (escolha UM gerenciador)
-# Mantendo npm:
 pnpm-lock.yaml
 yarn.lock
-# (se você for usar pnpm, remova a linha acima e ignore package-lock.json)
-# package-lock.json
 
-### Env (não commitar segredos)
 .env
 .env.*
 !.env.example
@@ -69,9 +64,8 @@ Thumbs.db
 .idea/
 .vscode/
 
-### Artefatos específicos do repositório
 sysdash-backup-*.bundle
 
-### Vite artefatos temporários
+### temporários
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
