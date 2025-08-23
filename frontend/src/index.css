@@ -1,4 +1,47 @@
 @import "tailwindcss";
 
-html, body, #root { height: 100%; }
-body { @apply bg-[#0b0f14] text-slate-200; }
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  @apply bg-[#0b0f14] text-slate-200;
+}
+
+:root {
+  --lnf-gap: 1rem; /* 16px */
+  --lnf-pad: 1rem;
+  --lnf-radius: 0.75rem; /* 12px */
+  --lnf-chart-h: 220px;
+  --lnf-text-sm: 0.875rem; /* 14px */
+  --lnf-text-xs: 0.75rem; /* 12px */
+}
+
+.compact-ui {
+  --lnf-gap: 0.5rem; /* 8px */
+  --lnf-pad: 0.625rem; /* 10px */
+  --lnf-radius: 0.6rem;
+  --lnf-chart-h: 160px;
+  --lnf-text-sm: 0.813rem; /* 13px */
+  --lnf-text-xs: 0.688rem; /* 11px */
+}
+
+@layer base {
+  html.compact-ui {
+    font-size: 15px;
+  }
+  @media (min-width: 1280px) {
+    html.compact-ui {
+      font-size: 14px;
+    }
+  }
+}
+
+.compact-ui .card {
+  padding: var(--lnf-pad);
+  border-radius: var(--lnf-radius);
+}
+.compact-ui .grid {
+  gap: var(--lnf-gap);
+}

@@ -11,7 +11,7 @@ import { rateMBs } from "./utils/format";
 import Gauge from "./components/Gauge";
 import TemperaturePanel from "./components/TemperaturePanel";
 
-// app principal
+// app
 export default function App() {
   console.log("API_BASE =>", import.meta.env.VITE_API_URL);
   const { stats, cpuSeries, ramGBSeries, upSeriesMBs, downSeriesMBs } =
@@ -23,48 +23,54 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0b0f14] text-slate-200">
+    <div className="min-h-screen bg-white text-slate-800 dark:bg-[#0b0f14] dark:text-slate-200">
       <Header />
 
       <main className="mx-auto max-w-7xl p-6 space-y-6">
         {/* KPIs */}
-        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
           <KpiCard
             title="Uso de CPU"
             value={`${Math.round(stats.cpu)}%`}
-            subtitle="Carga atual"
-            accent="from-cyan-400/25 to-blue-500/20"
+            percent={stats.cpu}
+            subtitle="Processamento atual"
+            accent="from-blue-500/20 via-cyan-400/25 to-sky-600/30"
             left={<Gauge value={stats.cpu} color="rgb(56 189 248)" />}
+            className="hover:shadow-blue-500/20"
           />
           <KpiCard
             title="Uso de RAM"
             value={`${Math.round(stats.ram)}%`}
-            subtitle="Em uso / Total"
-            accent="from-emerald-400/25 to-lime-500/20"
+            percent={stats.ram}
+            subtitle="Memória em uso"
+            accent="from-emerald-500/20 via-green-400/25 to-teal-600/30"
             left={<Gauge value={stats.ram} color="rgb(34 197 94)" />}
+            className="hover:shadow-emerald-500/20"
           />
-
           <KpiCard
             title="Uso de Disco"
             value={`${Math.round(stats.disk)}%`}
-            subtitle="Sistema de arquivos raiz"
-            accent="from-amber-400/25 to-orange-500/20"
+            percent={stats.disk}
+            subtitle="Armazenamento utilizado"
+            accent="from-amber-500/20 via-yellow-400/25 to-orange-600/30"
             left={<Gauge value={stats.disk} color="rgb(251 191 36)" />}
+            className="hover:shadow-amber-500/20"
           />
-
           <KpiCard
-            title="Rede"
+            title="Tráfego de Rede"
             value={`${rateMBs(stats.net.downMBs)} ↓ / ${rateMBs(
               stats.net.upMBs
             )} ↑`}
-            subtitle="Taxa (MB/s)"
-            accent="from-fuchsia-400/25 to-pink-500/20"
+            percent={Math.min(100, (stats.net.downMBs + stats.net.upMBs) * 10)}
+            subtitle="Velocidade atual"
+            accent="from-purple-500/20 via-fuchsia-400/25 to-pink-600/30"
             left={
               <Gauge
                 value={Math.min(100, (stats.net.downMBs + stats.net.upMBs) * 5)}
                 color="rgb(217 70 239)"
               />
             }
+            className="hover:shadow-purple-500/20"
           />
         </section>
 

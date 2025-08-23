@@ -1,13 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/public/images/lnf_pulse_glyph_128.png"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>LnfMonitor</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      (() => {
+        const ls = localStorage.getItem("lnf.theme"); // 'dark' | 'light' | null
+        const sysDark = window.matchMedia("(prefers-color-scheme: dark)");
+        const apply = () => {
+          const useDark = ls ? ls === "dark" : sysDark.matches;
+          document.documentElement.classList.toggle("dark", useDark);
+          console.log("[theme] applied:", useDark ? "dark" : "light");
+        };
+        apply();
+        sysDark.addEventListener?.("change", apply);
+      })();
+    </script>
   </body>
 </html>
