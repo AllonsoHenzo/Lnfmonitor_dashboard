@@ -10,7 +10,7 @@
 [![Debian](https://img.shields.io/badge/Debian-Ubuntu-red?logo=debian)]()
 [![Windows](https://img.shields.io/badge/Windows-Coming%20Soon-blue?logo=windows)]()
 
-<p align="right">🌐 <strong>Português (BR)</strong> • <a href="./en.md">English</a></p>
+<p align="right">🌐 <strong>Português (BR)</strong> • <a href="./README_en.md">English</a></p>
 </div>
 
 ---
